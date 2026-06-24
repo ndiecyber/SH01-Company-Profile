@@ -11,7 +11,7 @@ type LogoProps = {
 
 export function Logo({ variant = "dark", className, href = "/" }: LogoProps) {
   const isFooterLogo = variant === "light";
-  const logoSrc = isFooterLogo ? "/logo-footer.png" : "/logo.png";
+  const logoSrc = isFooterLogo ? "/footerLEXA.png" : "/logo.png";
 
   return (
     <Link
@@ -21,8 +21,8 @@ export function Logo({ variant = "dark", className, href = "/" }: LogoProps) {
     >
       <div
         className={cn(
-          "relative overflow-hidden",
-          isFooterLogo ? "h-[52px] w-[190px]" : "h-[44px] w-[165px]"
+          "relative",
+          isFooterLogo ? "h-[90px] w-[270px]" : "h-[74px] w-[250px]"
         )}
       >
         <Image
@@ -30,12 +30,8 @@ export function Logo({ variant = "dark", className, href = "/" }: LogoProps) {
           alt="LEXA Software House"
           fill
           priority
-          className={cn(
-            isFooterLogo
-              ? "object-cover object-center"
-              : "object-cover object-center"
-          )}
-          sizes={isFooterLogo ? "190px" : "165px"}
+          className="object-contain object-left"
+          sizes={isFooterLogo ? "270px" : "250px"}
         />
       </div>
     </Link>

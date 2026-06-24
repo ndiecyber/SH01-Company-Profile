@@ -57,7 +57,7 @@ const iconItem = {
 
 export function Technologies() {
   return (
-    <section id="technologies" className="bg-slate-50 py-12 lg:py-14">
+    <section id="technologies" className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 28 }}

@@ -23,7 +23,7 @@ const listItem = {
 
 export function About() {
   return (
-    <section id="about" className="bg-white py-16 lg:py-20">
+    <section id="about" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto grid max-w-[1180px] items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 lg:px-8">
         {/* Left Content */}
         <motion.div
