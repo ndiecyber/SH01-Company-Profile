@@ -42,7 +42,7 @@ export function Testimonials() {
 
   return (
     <section className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
-      <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
