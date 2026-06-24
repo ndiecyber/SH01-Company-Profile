@@ -41,7 +41,7 @@ export function Testimonials() {
   };
 
   return (
-    <section className="bg-slate-50 py-12 lg:py-14">
+    <section className="bg-slate-50 pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <motion.div
@@ -86,7 +86,7 @@ export function Testimonials() {
                 boxShadow: "0 18px 45px -16px rgba(15,23,42,0.22)",
               }}
               transition={{ type: "spring", stiffness: 280, damping: 22 }}
-              className="flex w-[88%] shrink-0 snap-start flex-col rounded-[14px] border border-slate-100 bg-white p-6 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+              className="flex w-[88%] shrink-0 snap-start flex-col rounded-[14px] border border-slate-100 bg-white p-6 shadow-sm sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)]"
             >
               <motion.div
                 initial={{ scale: 0, rotate: -20 }}

@@ -59,7 +59,7 @@ export function Portfolio() {
   };
 
   return (
-    <section id="portfolio" className="bg-white py-12 lg:py-14">
+    <section id="portfolio" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
       <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 26 }}
