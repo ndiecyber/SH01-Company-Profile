@@ -65,7 +65,7 @@ export function Blog() {
 
   return (
     <section id="blog" className="bg-white pt-10 pb-6 lg:pt-12 lg:pb-8">
-      <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-amber-600 shadow-sm">
