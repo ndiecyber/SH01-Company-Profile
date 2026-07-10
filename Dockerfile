@@ -27,9 +27,9 @@ RUN DATABASE_URL="postgresql://dummy:dummy@localhost/dummy" npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Install openssl and prisma CLI and dotenv locally to resolve imports in prisma.config.ts
+# Install openssl and prisma CLI, dotenv, and tsx locally to resolve imports in prisma.config.ts
 RUN apk add --no-cache openssl
-RUN npm install prisma@7.8.0 dotenv
+RUN npm install prisma@7.8.0 dotenv tsx
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
