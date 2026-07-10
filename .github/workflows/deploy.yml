@@ -100,8 +100,8 @@ jobs:
           mkdir -p "${RELEASES_DIR}"
           cp -rl "${STAGING_DIR}" "${RELEASE_DIR}"
 
-          echo "==> Fixing ownership"
-          chown -R 1001:1001 "${RELEASE_DIR}"
+          echo "==> Ensuring read permissions for container"
+          chmod -R a+rX "${RELEASE_DIR}"
 
           PREVIOUS_RELEASE=""
           if [ -L "${APP_LINK}" ]; then
