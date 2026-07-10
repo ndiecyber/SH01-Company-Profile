@@ -63,10 +63,10 @@ jobs:
         if [ -f "prisma.config.ts" ]; then
           cp prisma.config.ts deploy-pkg/
           # Ensure Prisma CLI dependencies are included since Next.js prunes them
-          cp -r node_modules/prisma deploy-pkg/node_modules/ || true
-          cp -r node_modules/@prisma deploy-pkg/node_modules/ || true
+          cp -a node_modules/prisma deploy-pkg/node_modules/ || true
+          cp -a node_modules/@prisma deploy-pkg/node_modules/ || true
           mkdir -p deploy-pkg/node_modules/.bin
-          cp node_modules/.bin/prisma* deploy-pkg/node_modules/.bin/ || true
+          cp -d node_modules/.bin/prisma* deploy-pkg/node_modules/.bin/ || true
         fi
 
         echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
