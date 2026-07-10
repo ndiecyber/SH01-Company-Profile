@@ -60,6 +60,9 @@ jobs:
         if [ -d "prisma" ]; then
           cp -r prisma deploy-pkg/prisma
         fi
+        if [ -f "prisma.config.ts" ]; then
+          cp prisma.config.ts deploy-pkg/
+        fi
 
         echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
 
