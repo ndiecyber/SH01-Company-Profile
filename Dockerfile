@@ -27,10 +27,9 @@ RUN DATABASE_URL="postgresql://dummy:dummy@localhost/dummy" npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Install openssl for Prisma migrations
+# Install openssl and prisma CLI and dotenv locally to resolve imports in prisma.config.ts
 RUN apk add --no-cache openssl
-
-RUN npm install -g prisma@7.8.0
+RUN npm install prisma@7.8.0 dotenv
 
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
@@ -41,6 +40,7 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
