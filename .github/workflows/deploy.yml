@@ -121,7 +121,7 @@ jobs:
           HEALTH_OK=false
           for i in $(seq 1 30); do
             if docker compose exec -T sh01-company-profile \
-                 sh -c 'wget -q -O /dev/null --spider http://localhost:3000/ 2>/dev/null'; then
+                 node -e "require('http').get('http://localhost:3000/', (res) => { if (res.statusCode === 200 || res.statusCode === 307 || res.statusCode === 308) process.exit(0); else process.exit(1); }).on('error', () => process.exit(1));" 2>/dev/null; then
               HEALTH_OK=true
               echo "    ✅ Passed (attempt ${i})"
               break
@@ -132,6 +132,8 @@ jobs:
 
           if [ "${HEALTH_OK}" = "false" ]; then
             echo "==> ❌ HEALTH CHECK FAILED!"
+            echo "==> 📜 Container logs:"
+            docker compose logs --tail=50 sh01-company-profile
             if [ -n "${PREVIOUS_RELEASE}" ] && [ -d "${PREVIOUS_RELEASE}" ]; then
               echo "==> Rolling back to: ${PREVIOUS_RELEASE}"
               ln -sfn "${PREVIOUS_RELEASE}" "${APP_LINK}.tmp"
