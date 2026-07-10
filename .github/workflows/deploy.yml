@@ -66,7 +66,7 @@ jobs:
           cp -r node_modules/prisma deploy-pkg/node_modules/ || true
           cp -r node_modules/@prisma deploy-pkg/node_modules/ || true
           mkdir -p deploy-pkg/node_modules/.bin
-          cp node_modules/.bin/prisma deploy-pkg/node_modules/.bin/ || true
+          cp node_modules/.bin/prisma* deploy-pkg/node_modules/.bin/ || true
         fi
 
         echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
