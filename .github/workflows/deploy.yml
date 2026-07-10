@@ -145,7 +145,7 @@ jobs:
           fi
 
           echo "==> Prisma migrate"
-          docker compose exec -T sh01-company-profile \
+          docker compose exec -T -e HOME=/tmp sh01-company-profile \
             npx --yes prisma migrate deploy 2>&1 || echo "    ⚠️ Skipped"
 
           echo "==> Cleanup (keep ${KEEP_RELEASES})"
