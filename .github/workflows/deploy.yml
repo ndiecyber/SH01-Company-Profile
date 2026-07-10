@@ -44,7 +44,10 @@ jobs:
         cp -r .next/static deploy-dist/.next/
         cp -r public deploy-dist/
         if [ -d "prisma" ]; then cp -r prisma deploy-dist/; fi
-
+        
+        cd deploy-dist
+        npm install pg @prisma/adapter-pg dotenv prisma
+        
     - name: Deploy to VPS using rsync
       uses: easingthemes/ssh-deploy@main
       with:
