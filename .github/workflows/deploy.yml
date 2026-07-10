@@ -1,9 +1,15 @@
-name: Build & Deploy via Rsync
+name: Build & Deploy
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
+
+env:
+  STAGING_DIR: /opt/lexa/sh01-cp-staging
+  RELEASES_DIR: /opt/lexa/sh01-cp-releases
+  APP_LINK: /opt/lexa/apps/sh01-company-profile
+  KEEP_RELEASES: 5
 
 jobs:
   build-and-deploy:
@@ -30,49 +36,129 @@ jobs:
       env:
         DATABASE_URL: "postgresql://dummy:dummy@localhost/dummy"
 
-    - name: Build Next.js
-      run: npx next build --webpack
+    - name: Build Next.js (standalone)
+      run: npx next build
       env:
         DATABASE_URL: "postgresql://dummy:dummy@localhost/dummy"
-        # Pastikan Anda memasukkan variabel NEXT_PUBLIC_ dari rahasia (secrets) jika ada
-        # NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
-    - name: Prepare deploy folder
+    - name: Assemble standalone package
       run: |
-        mkdir -p deploy-dist
-        cp -r .next deploy-dist/
-        cp -r public deploy-dist/
-        cp package.json package-lock.json deploy-dist/
-        if [ -d "prisma" ]; then cp -r prisma deploy-dist/; fi
-        if [ -f "next.config.ts" ]; then cp next.config.ts deploy-dist/; fi
+        mkdir -p deploy-pkg
 
-    - name: Deploy to VPS using rsync
-      uses: easingthemes/ssh-deploy@main
-      with:
-        SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
-        ARGS: "-rlgoDzO --delete --size-only"
-        SOURCE: "deploy-dist/"
-        REMOTE_HOST: ${{ secrets.VPS_IP }}
-        REMOTE_USER: ${{ secrets.VPS_USERNAME }}
-        TARGET: "/opt/lexa/apps/sh01-company-profile-deploy"
+        # Standalone output (server.js + pruned node_modules)
+        cp -r .next/standalone/. deploy-pkg/
 
-    - name: Post-deploy commands
-      uses: appleboy/ssh-action@master
+        # Static assets (excluded from standalone by design)
+        mkdir -p deploy-pkg/.next/static
+        cp -r .next/static/. deploy-pkg/.next/static/
+
+        # Public assets
+        mkdir -p deploy-pkg/public
+        cp -r public/. deploy-pkg/public/
+
+        # Prisma migrations
+        if [ -d "prisma" ]; then
+          cp -r prisma deploy-pkg/prisma
+        fi
+
+        echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
+
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts 2>/dev/null
+
+    - name: Rsync to staging
+      run: |
+        rsync -az --delete \
+          -e "ssh -i ~/.ssh/deploy_key" \
+          deploy-pkg/ \
+          ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:${{ env.STAGING_DIR }}/
+
+    - name: Deploy with atomic swap
+      uses: appleboy/ssh-action@v1.2.0
+      env:
+        STAGING_DIR: ${{ env.STAGING_DIR }}
+        RELEASES_DIR: ${{ env.RELEASES_DIR }}
+        APP_LINK: ${{ env.APP_LINK }}
+        KEEP_RELEASES: ${{ env.KEEP_RELEASES }}
       with:
         host: ${{ secrets.VPS_IP }}
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
+        envs: STAGING_DIR,RELEASES_DIR,APP_LINK,KEEP_RELEASES
+        script_stop: true
         script: |
-          cd /opt/lexa/apps
-          
-          docker run --rm -v /opt/lexa/apps/sh01-company-profile-deploy:/app -w /app -e HOME=/tmp --user $(id -u):$(id -g) node:22-bookworm-slim npm ci --omit=dev
-          rm -rf sh01-company-profile-backup
-          
-          if [ -d "sh01-company-profile" ]; then
-            mv sh01-company-profile sh01-company-profile-backup
+          set -euo pipefail
+
+          RELEASE_ID=$(date +%Y%m%d_%H%M%S)
+          RELEASE_DIR="${RELEASES_DIR}/${RELEASE_ID}"
+
+          echo "==> Creating release ${RELEASE_ID} (hardlink copy)"
+          mkdir -p "${RELEASES_DIR}"
+          cp -rl "${STAGING_DIR}" "${RELEASE_DIR}"
+
+          echo "==> Fixing ownership"
+          chown -R 1001:1001 "${RELEASE_DIR}"
+
+          PREVIOUS_RELEASE=""
+          if [ -L "${APP_LINK}" ]; then
+            PREVIOUS_RELEASE=$(readlink -f "${APP_LINK}")
+            echo "    Previous: ${PREVIOUS_RELEASE}"
           fi
-          mv sh01-company-profile-deploy sh01-company-profile
-          
+
+          echo "==> Swapping symlink"
+          ln -sfn "${RELEASE_DIR}" "${APP_LINK}.tmp"
+          mv -Tf "${APP_LINK}.tmp" "${APP_LINK}"
+
+          echo "==> Recreating container"
           cd /opt/lexa
-          docker compose exec -T sh01-company-profile npx --yes prisma migrate deploy || true
-          docker compose restart sh01-company-profile
+          docker compose up -d --force-recreate sh01-company-profile
+
+          echo "==> Health check (max 60s)"
+          HEALTH_OK=false
+          for i in $(seq 1 30); do
+            if docker compose exec -T sh01-company-profile \
+                 sh -c 'wget -q -O /dev/null --spider http://localhost:3000/ 2>/dev/null'; then
+              HEALTH_OK=true
+              echo "    ✅ Passed (attempt ${i})"
+              break
+            fi
+            echo "    ⏳ ${i}/30..."
+            sleep 2
+          done
+
+          if [ "${HEALTH_OK}" = "false" ]; then
+            echo "==> ❌ HEALTH CHECK FAILED!"
+            if [ -n "${PREVIOUS_RELEASE}" ] && [ -d "${PREVIOUS_RELEASE}" ]; then
+              echo "==> Rolling back to: ${PREVIOUS_RELEASE}"
+              ln -sfn "${PREVIOUS_RELEASE}" "${APP_LINK}.tmp"
+              mv -Tf "${APP_LINK}.tmp" "${APP_LINK}"
+              docker compose up -d --force-recreate sh01-company-profile
+              echo "==> ⏪ Rolled back"
+            fi
+            exit 1
+          fi
+
+          echo "==> Prisma migrate"
+          docker compose exec -T sh01-company-profile \
+            npx --yes prisma migrate deploy 2>&1 || echo "    ⚠️ Skipped"
+
+          echo "==> Cleanup (keep ${KEEP_RELEASES})"
+          CURRENT=$(readlink -f "${APP_LINK}")
+          cd "${RELEASES_DIR}"
+          for dir in $(ls -1dt */ 2>/dev/null | tail -n +$((KEEP_RELEASES + 1))); do
+            FULL="${RELEASES_DIR}/${dir%/}"
+            if [ "${FULL}" != "${CURRENT}" ]; then
+              echo "    🗑️ ${dir}"
+              rm -rf "${dir}"
+            fi
+          done
+
+          echo "==> ✅ Done! Release: ${RELEASE_ID}"
+
+    - name: Cleanup SSH key
+      if: always()
+      run: rm -f ~/.ssh/deploy_key
