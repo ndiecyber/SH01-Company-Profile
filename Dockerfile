@@ -18,10 +18,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate prisma client if needed
-RUN npx prisma generate
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost/dummy" npx prisma generate
 
 # Build the Next.js app
-RUN npm run build
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost/dummy" npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
