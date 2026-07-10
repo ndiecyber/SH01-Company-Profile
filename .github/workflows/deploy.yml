@@ -31,7 +31,7 @@ jobs:
         DATABASE_URL: "postgresql://dummy:dummy@localhost/dummy"
 
     - name: Build Next.js
-      run: npm run build
+      run: npx next build --webpack
       env:
         DATABASE_URL: "postgresql://dummy:dummy@localhost/dummy"
         # Pastikan Anda memasukkan variabel NEXT_PUBLIC_ dari rahasia (secrets) jika ada
