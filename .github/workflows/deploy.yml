@@ -44,6 +44,19 @@ jobs:
         cp -r .next/static deploy-dist/.next/
         cp -r public deploy-dist/
         if [ -d "prisma" ]; then cp -r prisma deploy-dist/; fi
+        
+        # WORKAROUND FOR NEXT 16 TURBOPACK STANDALONE BUG
+        cd deploy-dist/node_modules
+        
+        PG_HASH=$(grep -rhoE "pg-[a-f0-9]{16}" ../.next/server/ | head -n 1 || true)
+        if [ ! -z "$PG_HASH" ] && [ ! -d "$PG_HASH" ] && [ -d "pg" ]; then
+          cp -r pg "$PG_HASH"
+        fi
+        
+        PRISMA_CLIENT_HASH=$(grep -rhoE "@prisma/client-[a-f0-9]{16}" ../.next/server/ | head -n 1 || true)
+        if [ ! -z "$PRISMA_CLIENT_HASH" ] && [ ! -d "$PRISMA_CLIENT_HASH" ] && [ -d "@prisma/client" ]; then
+          cp -r @prisma/client "$PRISMA_CLIENT_HASH"
+        fi
     - name: Deploy to VPS using rsync
       uses: easingthemes/ssh-deploy@main
       with:
