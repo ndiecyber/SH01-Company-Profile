@@ -48,6 +48,16 @@ jobs:
         # WORKAROUND FOR NEXT 16 TURBOPACK STANDALONE BUG
         cd deploy-dist/node_modules
         
+        # Ensure pg and @prisma/client exist in standalone node_modules
+        if [ ! -d "pg" ] && [ -d "../../node_modules/pg" ]; then
+          cp -r ../../node_modules/pg ./
+        fi
+        
+        if [ ! -d "@prisma/client" ] && [ -d "../../node_modules/@prisma/client" ]; then
+          mkdir -p @prisma
+          cp -r ../../node_modules/@prisma/client ./@prisma/
+        fi
+
         PG_HASH=$(grep -rhoE "pg-[a-f0-9]{16}" ../.next/server/ | head -n 1 || true)
         if [ ! -z "$PG_HASH" ] && [ ! -d "$PG_HASH" ] && [ -d "pg" ]; then
           cp -r pg "$PG_HASH"
