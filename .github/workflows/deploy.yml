@@ -52,4 +52,4 @@ jobs:
           cd /opt/lexa
           docker compose pull sh01-company-profile
           docker compose up -d sh01-company-profile
-          docker compose exec -T sh01-company-profile npx prisma migrate deploy
+          docker compose exec -T sh01-company-profile prisma migrate deploy
