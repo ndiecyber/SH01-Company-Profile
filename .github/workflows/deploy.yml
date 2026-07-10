@@ -40,33 +40,12 @@ jobs:
     - name: Prepare deploy folder
       run: |
         mkdir -p deploy-dist
-        cp -r .next/standalone/* deploy-dist/
-        cp -r .next/static deploy-dist/.next/
+        cp -r .next deploy-dist/
         cp -r public deploy-dist/
+        cp package.json package-lock.json deploy-dist/
         if [ -d "prisma" ]; then cp -r prisma deploy-dist/; fi
-        
-        # WORKAROUND FOR NEXT 16 TURBOPACK STANDALONE BUG
-        cd deploy-dist/node_modules
-        
-        # Ensure pg and @prisma/client exist in standalone node_modules
-        if [ ! -d "pg" ] && [ -d "../../node_modules/pg" ]; then
-          cp -r ../../node_modules/pg ./
-        fi
-        
-        if [ ! -d "@prisma/client" ] && [ -d "../../node_modules/@prisma/client" ]; then
-          mkdir -p @prisma
-          cp -r ../../node_modules/@prisma/client ./@prisma/
-        fi
+        if [ -f "next.config.ts" ]; then cp next.config.ts deploy-dist/; fi
 
-        PG_HASH=$(grep -rhoE "pg-[a-f0-9]{16}" ../.next/server/ | head -n 1 || true)
-        if [ ! -z "$PG_HASH" ] && [ ! -d "$PG_HASH" ] && [ -d "pg" ]; then
-          cp -r pg "$PG_HASH"
-        fi
-        
-        PRISMA_CLIENT_HASH=$(grep -rhoE "@prisma/client-[a-f0-9]{16}" ../.next/server/ | head -n 1 || true)
-        if [ ! -z "$PRISMA_CLIENT_HASH" ] && [ ! -d "$PRISMA_CLIENT_HASH" ] && [ -d "@prisma/client" ]; then
-          cp -r @prisma/client "$PRISMA_CLIENT_HASH"
-        fi
     - name: Deploy to VPS using rsync
       uses: easingthemes/ssh-deploy@main
       with:
@@ -86,15 +65,14 @@ jobs:
         script: |
           cd /opt/lexa/apps
           
+          docker run --rm -v /opt/lexa/apps/sh01-company-profile-deploy:/app -w /app -e HOME=/tmp --user $(id -u):$(id -g) node:22-bookworm-slim npm ci --omit=dev
           rm -rf sh01-company-profile-backup
           
-          # Atomic Swap
           if [ -d "sh01-company-profile" ]; then
             mv sh01-company-profile sh01-company-profile-backup
           fi
           mv sh01-company-profile-deploy sh01-company-profile
           
           cd /opt/lexa
-          
           docker compose exec -T sh01-company-profile npx --yes prisma migrate deploy || true
           docker compose restart sh01-company-profile
