@@ -50,6 +50,6 @@ jobs:
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
           cd /opt/lexa
-          docker compose pull sh01-companyprofile
-          docker compose up -d sh01-companyprofile
-          docker compose exec -T sh01-companyprofile npx prisma migrate deploy
+          docker compose pull sh01-company-profile
+          docker compose up -d sh01-company-profile
+          docker compose exec -T sh01-company-profile npx prisma migrate deploy

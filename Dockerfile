@@ -1,5 +1,5 @@
 # Multi-stage Dockerfile for Next.js
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -27,6 +27,9 @@ RUN DATABASE_URL="postgresql://dummy:dummy@localhost/dummy" npm run build
 FROM base AS runner
 WORKDIR /app
 
+# Install openssl for Prisma migrations
+RUN apk add --no-cache openssl
+
 ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED=1
@@ -35,6 +38,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
