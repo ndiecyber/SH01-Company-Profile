@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     cacheComponents: true,
+    serverExternalPackages: ["@prisma/client", "cloudinary", "pg", "@prisma/adapter-pg"],
     images: {
         qualities: [25, 50, 75, 100],
         remotePatterns: [
