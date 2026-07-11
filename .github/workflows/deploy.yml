@@ -57,6 +57,13 @@ jobs:
         cp -r public/. deploy-pkg/public/
 
         echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
+        echo "📊 Breakdown:"
+        du -sh deploy-pkg/node_modules 2>/dev/null || true
+        du -sh deploy-pkg/.next/static 2>/dev/null || true
+        du -sh deploy-pkg/public 2>/dev/null || true
+        du -sh deploy-pkg/.next/server 2>/dev/null || true
+        echo "🔍 Top 10 largest in node_modules:"
+        du -sh deploy-pkg/node_modules/*/ 2>/dev/null | sort -rh | head -10 || true
 
     - name: Setup SSH
       run: |
