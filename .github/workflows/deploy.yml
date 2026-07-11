@@ -56,19 +56,6 @@ jobs:
         mkdir -p deploy-pkg/public
         cp -r public/. deploy-pkg/public/
 
-        # Prisma migrations
-        if [ -d "prisma" ]; then
-          cp -r prisma deploy-pkg/prisma
-        fi
-        if [ -f "prisma.config.ts" ]; then
-          cp prisma.config.ts deploy-pkg/
-          # Ensure Prisma CLI dependencies are included since Next.js prunes them
-          cp -a node_modules/prisma deploy-pkg/node_modules/ || true
-          cp -a node_modules/@prisma deploy-pkg/node_modules/ || true
-          mkdir -p deploy-pkg/node_modules/.bin
-          cp -d node_modules/.bin/prisma* deploy-pkg/node_modules/.bin/ || true
-        fi
-
         echo "📦 Package size: $(du -sh deploy-pkg | cut -f1)"
 
     - name: Setup SSH
@@ -77,6 +64,50 @@ jobs:
         echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
         chmod 600 ~/.ssh/deploy_key
         ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts 2>/dev/null
+
+    - name: Prisma migrate deploy
+      run: |
+        START_TIME=$(date +%s)
+
+        echo "==> Opening SSH tunnel (localhost:15432 → VPS:5432)"
+        ssh -f -N -L 15432:localhost:5432 \
+          -i ~/.ssh/deploy_key \
+          ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}
+        sleep 1
+
+        echo "==> Verifying tunnel connectivity"
+        if nc -z localhost 15432 2>/dev/null; then
+          echo "    ✅ Tunnel is open"
+        else
+          echo "    ❌ Tunnel failed to open"
+          exit 1
+        fi
+
+        echo "==> Checking pending migrations"
+        npx prisma migrate status 2>&1 || true
+
+        echo "==> Running prisma migrate deploy"
+        MIGRATE_EXIT=0
+        npx prisma migrate deploy 2>&1 || MIGRATE_EXIT=$?
+
+        if [ "$MIGRATE_EXIT" -eq 0 ]; then
+          echo "    ✅ Migration completed successfully"
+        else
+          echo "    ⚠️ Migration exited with code $MIGRATE_EXIT"
+        fi
+
+        echo "==> Migration status after deploy"
+        npx prisma migrate status 2>&1 || true
+
+        echo "==> Closing SSH tunnel"
+        kill $(lsof -t -i:15432) 2>/dev/null || true
+
+        END_TIME=$(date +%s)
+        echo "==> ⏱️ Prisma migrate took $((END_TIME - START_TIME))s"
+
+        exit $MIGRATE_EXIT
+      env:
+        DATABASE_URL: "postgresql://${{ secrets.DB_USERNAME }}:${{ secrets.DB_PASSWORD }}@localhost:15432/${{ secrets.DB_NAME }}"
 
     - name: Rsync to staging
       run: |
@@ -152,9 +183,6 @@ jobs:
             exit 1
           fi
 
-          echo "==> Prisma migrate"
-          docker compose exec -T -e HOME=/tmp sh01-company-profile \
-            npx --yes prisma migrate deploy 2>&1 || echo "    ⚠️ Skipped"
 
           echo "==> Cleanup (keep ${KEEP_RELEASES})"
           CURRENT=$(readlink -f "${APP_LINK}")
@@ -167,7 +195,7 @@ jobs:
             fi
           done
 
-          echo "==> ✅ Done! Release: ${RELEASE_ID}"
+          echo "==> ✅ Deploy done! Release: ${RELEASE_ID}"
 
     - name: Cleanup SSH key
       if: always()
