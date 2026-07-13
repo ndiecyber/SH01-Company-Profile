@@ -9,7 +9,7 @@ env:
   STAGING_DIR: /opt/lexa/sh01-cp-staging
   RELEASES_DIR: /opt/lexa/sh01-cp-releases
   APP_LINK: /opt/lexa/apps/sh01-company-profile
-  KEEP_RELEASES: 5
+  KEEP_RELEASES: 2
 
 jobs:
   build-and-deploy:
