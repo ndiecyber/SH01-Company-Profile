@@ -1,16 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CalendarDays, Rocket, UserCheck, Users } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 
-const icons: Record<string, LucideIcon> = {
-    rocket: Rocket,
-    clients: Users,
-    team: UserCheck,
-    calendar: CalendarDays,
-};
+import { CmsIcon } from "@/components/cms-icon";
 
 type Stat = { id: string; icon: string; value: string; label: string };
 
@@ -49,8 +42,6 @@ function StatItem({ s, index }: { s: Stat; index: number }) {
     const num = parseInt(s.value);
     const suffix = s.value.replace(/\d+/, "");
     const count = useCounter(num, inView);
-    const Icon = icons[s.icon];
-    if (!Icon) return null;
 
     return (
         <motion.div
@@ -75,7 +66,7 @@ function StatItem({ s, index }: { s: Stat; index: number }) {
                 }}
                 className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-blue-400 ring-1 ring-blue-300/10"
             >
-                <Icon className="size-6" strokeWidth={2.2} />
+                <CmsIcon name={s.icon} size={24} strokeWidth={2.2} />
             </motion.span>
 
             <div className="min-w-0">
