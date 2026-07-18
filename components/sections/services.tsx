@@ -2,16 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    ArrowRight,
-    Cloud,
-    Code2,
-    Cog,
-    Palette,
-    ShieldCheck,
-    Smartphone,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 import Image from "next/image";
@@ -23,17 +14,9 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { SectionHeading } from "@/components/section-heading";
+import { CmsIcon } from "@/components/cms-icon";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-const config: Record<string, { icon: LucideIcon; tint: string }> = {
-    code: { icon: Code2, tint: "bg-blue-50 text-blue-600" },
-    mobile: { icon: Smartphone, tint: "bg-indigo-50 text-indigo-600" },
-    system: { icon: Cog, tint: "bg-emerald-50 text-emerald-600" },
-    design: { icon: Palette, tint: "bg-amber-50 text-amber-600" },
-    consulting: { icon: Cloud, tint: "bg-sky-50 text-sky-600" },
-    support: { icon: ShieldCheck, tint: "bg-violet-50 text-violet-600" },
-};
 
 const gridContainer = {
     hidden: {},
@@ -44,6 +27,15 @@ const cardVariant = {
     hidden: { opacity: 0, y: 36 },
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } },
 };
+
+const tints = [
+    "bg-blue-50 text-blue-600",
+    "bg-indigo-50 text-indigo-600",
+    "bg-emerald-50 text-emerald-600",
+    "bg-amber-50 text-amber-600",
+    "bg-sky-50 text-sky-600",
+    "bg-violet-50 text-violet-600",
+] as const;
 
 type Service = {
     id: string;
@@ -109,10 +101,8 @@ export function Services() {
                     viewport={{ once: true, margin: "-60px" }}
                     className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
                 >
-                    {services.map((s) => {
-                        const entry = config[s.icon];
-                        if (!entry) return null;
-                        const { icon: Icon, tint } = entry;
+                    {services.map((s, index) => {
+                        const tint = tints[index % tints.length];
                         return (
                             <motion.div
                                 key={s.id}
@@ -152,7 +142,7 @@ export function Services() {
                                                 }}
                                                 className={`inline-flex size-12 shrink-0 items-center justify-center rounded-xl ${tint}`}
                                             >
-                                                <Icon className="size-6" />
+                                                <CmsIcon name={s.icon} size={24} />
                                             </motion.span>
 
                                             <CardTitle className="text-lg leading-snug text-slate-900">

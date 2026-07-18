@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { statSchema } from "@/lib/cms/schemas";
+import { normalizeIconName } from "@/lib/icon";
 
 export async function GET() {
     try {
@@ -15,6 +16,9 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const raw = (await request.json()) as Record<string, unknown>;
+        if (raw["icon"] != null) {
+            raw["icon"] = normalizeIconName(raw["icon"] as string);
+        }
         const parsed = statSchema.safeParse(raw);
         if (!parsed.success) {
             const fieldErrors = parsed.error.flatten().fieldErrors;

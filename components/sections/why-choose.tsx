@@ -1,25 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-    BadgeCheck,
-    Clock,
-    LifeBuoy,
-    Smile,
-    Users,
-    type LucideIcon,
-} from "lucide-react";
 import { motion } from "framer-motion";
 
-const ease = [0.22, 1, 0.36, 1] as const;
+import { CmsIcon } from "@/components/cms-icon";
 
-const icons: Record<string, LucideIcon> = {
-    quality: BadgeCheck,
-    team: Users,
-    delivery: Clock,
-    satisfaction: Smile,
-    support: LifeBuoy,
-};
+const ease = [0.22, 1, 0.36, 1] as const;
 
 const gridContainer = {
     hidden: {},
@@ -90,37 +76,33 @@ export function WhyChoose() {
                     viewport={{ once: true, margin: "-60px" }}
                     className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-5 lg:grid-cols-5"
                 >
-                    {reasons.map((r) => {
-                        const Icon = icons[r.icon];
-                        if (!Icon) return null;
-                        return (
-                            <motion.div
-                                key={r.id}
-                                variants={itemVariant}
-                                className="flex flex-col gap-2"
+                    {reasons.map((r) => (
+                        <motion.div
+                            key={r.id}
+                            variants={itemVariant}
+                            className="flex flex-col gap-2"
+                        >
+                            <motion.span
+                                whileHover={{ scale: 1.15, y: -3 }}
+                                whileTap={{ scale: 0.95 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 360,
+                                    damping: 18,
+                                }}
+                                className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand cursor-default"
                             >
-                                <motion.span
-                                    whileHover={{ scale: 1.15, y: -3 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    transition={{
-                                        type: "spring",
-                                        stiffness: 360,
-                                        damping: 18,
-                                    }}
-                                    className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand cursor-default"
-                                >
-                                    <Icon className="size-5" />
-                                </motion.span>
-                                <h3 className="text-sm font-semibold text-slate-900">
-                                    {r.title}
-                                </h3>
-                                <p
-                                    className="text-xs leading-relaxed text-muted-foreground"
-                                    dangerouslySetInnerHTML={{ __html: r.description }}
-                                />
-                            </motion.div>
-                        );
-                    })}
+                                <CmsIcon name={r.icon} size={20} />
+                            </motion.span>
+                            <h3 className="text-sm font-semibold text-slate-900">
+                                {r.title}
+                            </h3>
+                            <p
+                                className="text-xs leading-relaxed text-muted-foreground"
+                                dangerouslySetInnerHTML={{ __html: r.description }}
+                            />
+                        </motion.div>
+                    ))}
                 </motion.div>
             </div>
         </section>

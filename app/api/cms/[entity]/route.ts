@@ -10,6 +10,7 @@ import {
     testimonialSchema,
     navLinkSchema,
 } from "@/lib/cms/schemas";
+import { normalizeIconName } from "@/lib/icon";
 import type { ZodSchema } from "zod";
 
 const SCHEMAS: Record<string, ZodSchema> = {
@@ -22,6 +23,12 @@ const SCHEMAS: Record<string, ZodSchema> = {
     testimonials: testimonialSchema,
     "nav-links": navLinkSchema,
 };
+
+const ICON_ENTITIES = new Set([
+    "services",
+    "technologies",
+    "reasons",
+]);
 
 const prismaModels: Record<string, unknown> = {
     stat: prisma.stat,
@@ -88,8 +95,11 @@ export async function POST(
         }
 
         const raw = (await request.json()) as Record<string, unknown>;
-        for (const field of ["imageUrl", "avatarUrl"]) {
+        for (const field of ["imageUrl", "avatarUrl", "icon"]) {
             if (raw[field] === "") raw[field] = null;
+        }
+        if (raw["icon"] != null && ICON_ENTITIES.has(entity)) {
+            raw["icon"] = normalizeIconName(raw["icon"] as string);
         }
         const parsed = schema.safeParse(raw);
 

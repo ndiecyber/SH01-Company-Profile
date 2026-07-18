@@ -117,8 +117,8 @@ export function Hero() {
                                 size="lg"
                                 className="h-12 w-full rounded-[8px] bg-brand px-6 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.35)] hover:bg-brand/90 sm:w-auto"
                             >
-                                <Link href={data.heroPrimaryHref}>
-                                    {data.heroPrimaryLabel}{" "}
+                                <Link href={data.heroPrimaryHref || "#contact"}>
+                                    {data.heroPrimaryLabel || "Get Started"}
                                     <ArrowRight className="size-4" />
                                 </Link>
                             </Button>
@@ -131,8 +131,8 @@ export function Hero() {
                                 variant="outline"
                                 className="h-12 w-full rounded-[8px] border-white/30 bg-transparent px-6 text-sm font-semibold text-white hover:bg-white/10 hover:text-white sm:w-auto"
                             >
-                                <Link href={data.heroSecondaryHref}>
-                                    {data.heroSecondaryLabel}{" "}
+                                <Link href={data.heroSecondaryHref || "services"}>
+                                    {data.heroSecondaryLabel || "Our Services"}
                                     <ArrowRight className="size-4" />
                                 </Link>
                             </Button>

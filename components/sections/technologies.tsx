@@ -22,10 +22,11 @@ import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "@/components/section-heading";
+import { CmsIcon } from "@/components/cms-icon";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const icons: Record<string, IconType> = {
+const brandIcons: Record<string, IconType> = {
     laravel: SiLaravel,
     react: SiReact,
     nextjs: SiNextdotjs,
@@ -119,8 +120,7 @@ export function Technologies() {
                         className="grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 lg:grid-cols-6"
                     >
                         {technologies.map((tech) => {
-                            const Icon = icons[tech.icon];
-                            if (!Icon) return null;
+                            const BrandIcon = brandIcons[tech.icon];
                             return (
                                 <motion.li
                                     key={tech.id}
@@ -142,14 +142,23 @@ export function Technologies() {
                                         }}
                                         transition={{ duration: 0.4 }}
                                     >
-                                        <Icon
-                                            className="size-9 text-slate-400 transition-colors duration-300 group-hover:text-[var(--tw)]"
-                                            style={
-                                                {
-                                                    "--tw": tech.color,
-                                                } as React.CSSProperties
-                                            }
-                                        />
+                                        {BrandIcon ? (
+                                            <BrandIcon
+                                                className="size-9 text-slate-400 transition-colors duration-300 group-hover:text-[var(--tw)]"
+                                                style={
+                                                    {
+                                                        "--tw": tech.color,
+                                                    } as React.CSSProperties
+                                                }
+                                            />
+                                        ) : (
+                                            <CmsIcon
+                                                name={tech.icon}
+                                                size={36}
+                                                className="text-slate-400 transition-colors duration-300"
+                                                style={{ "--tw": tech.color } as React.CSSProperties}
+                                            />
+                                        )}
                                     </motion.div>
                                     <span className="text-xs font-medium text-slate-600 transition-colors group-hover:text-slate-900">
                                         {tech.label}
