@@ -6,15 +6,11 @@ const api = axios.create({
     headers: { "Content-Type": "application/json" },
 });
 
-// test sync fork
-
 api.interceptors.response.use(
     (res) => res,
     (error: AxiosError<{ error?: string }>) => {
         const message =
-            error.response?.data?.error ??
-            error.message ??
-            "Something went wrong";
+            error.response?.data?.error ?? error.message ?? "Something went wrong";
         error.message = message;
         return Promise.reject(error);
     },
