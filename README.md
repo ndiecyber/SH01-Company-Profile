@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SH01 — Enterprise Company Profile & Business Hub
 
-## Getting Started
+A full-stack, enterprise-grade company profile and digital business management platform built with Next.js, Prisma ORM, and Tailwind CSS.
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-App_Router-black?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat-square&logo=prisma&logoColor=white)](https://prisma.io)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Modern-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Playwright](https://img.shields.io/badge/Playwright-E2E_Tested-2EAD33?style=flat-square&logo=playwright&logoColor=white)](https://playwright.dev)
+
+---
+
+## Architecture & Capabilities
+
+- **App Router Architecture**: Server-side rendering (SSR) and dynamic metadata for optimal SEO performance.
+- **Data Layer with Prisma**: Type-safe database queries, schema migrations, and relational modeling.
+- **Enterprise Verification**: End-to-end testing suites integrated using Playwright.
+- **Corporate UI Design**: Accessible design tokens, dark/light theming, and responsive layout grids.
+
+## Quick Start
 
 ```bash
+# Clone repository
+git clone -b staging https://github.com/ndiecyber/SH01-Company-Profile.git
+cd SH01-Company-Profile
+
+# Install dependencies
+npm install
+
+# Generate Prisma Client & Run
+npx prisma generate
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<sub>Collaborative Project • Maintained by @ndiecyber & Collaborators</sub>
